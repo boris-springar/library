@@ -1,2 +1,2 @@
 # library
-Lubrary REST server
+Library REST server
