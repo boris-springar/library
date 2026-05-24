@@ -2,13 +2,8 @@ package com.library.resource;
 
 import com.library.dto.BookCreateDto;
 import com.library.dto.BookDto;
-import com.library.dto.PageResponse;
-import com.library.model.Book;
-import com.library.repository.BookRepository;
-import com.library.util.Mapper;
-import io.quarkus.panache.common.Page;
+import com.library.service.BookService;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -27,133 +22,56 @@ import java.util.UUID;
 public class BookResource {
 
     @Inject
-    BookRepository bookRepository;
+    BookService bookService;
 
-    /**
-     * POST /api/books - Add a new book
-     */
     @POST
-    @Transactional
     @Operation(summary = "Add a new book")
     @APIResponse(responseCode = "201", description = "Book created successfully")
-    @APIResponse(responseCode = "400", description = "Validation error or duplicate ISBN")
+    @APIResponse(responseCode = "409", description = "ISBN already exists")
     public Response createBook(@Valid BookCreateDto dto) {
-        if (bookRepository.existsByIsbn(dto.isbn())) {
-            return Response.status(Response.Status.CONFLICT)
-                    .entity("{\"error\": \"ISBN already exists\"}")
-                    .build();
-        }
-
-        Book book = Mapper.toEntity(dto);
-        bookRepository.persist(book);
-
-        return Response.status(Response.Status.CREATED)
-                .entity(Mapper.toDto(book))
-                .build();
+        BookDto result = bookService.createBook(dto);
+        return Response.status(Response.Status.CREATED).entity(result).build();
     }
 
-    /**
-     * GET /api/books - List all books with pagination
-     */
     @GET
     @Operation(summary = "List all books with pagination")
     @APIResponse(responseCode = "200", description = "Books retrieved successfully")
-    public PageResponse<BookDto> listBooks(
+    public List<BookDto> listBooks(
             @DefaultValue("0") @QueryParam("page") int page,
             @DefaultValue("10") @QueryParam("size") int size) {
-
-        if (page < 0 || size <= 0 || size > 100) {
-            throw new BadRequestException("Invalid pagination parameters");
-        }
-
-        long total = bookRepository.count();
-
-        // Use Panache's Page instead of jakarta.data.Page
-        List<Book> books = bookRepository.findAll()
-                .page(Page.of(page, size))
-                .list();
-
-        List<BookDto> dtos = books.stream()
-                .map(Mapper::toDto)
-                .toList();
-
-        return PageResponse.of(dtos, page, size, total);
+        return bookService.listBooks(page, size);
     }
 
-    /**
-     * GET /api/books/{id} - Get a single book
-     */
     @GET
     @Path("/{id}")
     @Operation(summary = "Get a single book by ID")
     @APIResponse(responseCode = "200", description = "Book found")
     @APIResponse(responseCode = "404", description = "Book not found")
     public Response getBook(@PathParam("id") UUID id) {
-        Book book = bookRepository.findByIdOptional(id)
-                .orElseThrow(() -> new WebApplicationException("Book not found", Response.Status.NOT_FOUND));
-
-        return Response.ok(Mapper.toDto(book)).build();
+        return Response.ok(bookService.getBook(id)).build();
     }
 
-    /**
-     * PUT /api/books/{id} - Update an existing book
-     */
     @PUT
     @Path("/{id}")
-    @Transactional
     @Operation(summary = "Update an existing book")
     @APIResponse(responseCode = "200", description = "Book updated successfully")
     @APIResponse(responseCode = "404", description = "Book not found")
     @APIResponse(responseCode = "409", description = "ISBN conflict")
     public Response updateBook(@PathParam("id") UUID id, @Valid BookDto dto) {
-        Book existing = bookRepository.findByIdOptional(id)
-                .orElseThrow(() -> new WebApplicationException("Book not found", Response.Status.NOT_FOUND));
-
-        if (!existing.getIsbn().equals(dto.isbn()) && bookRepository.existsByIsbn(dto.isbn())) {
-            return Response.status(Response.Status.CONFLICT)
-                    .entity("{\"error\": \"ISBN already exists\"}")
-                    .build();
-        }
-
-        existing.setTitle(dto.title());
-        existing.setAuthor(dto.author());
-        existing.setIsbn(dto.isbn());
-        existing.setPublicationYear(dto.publicationYear());
-        existing.setTotalCopies(dto.totalCopies());
-
-        bookRepository.persist(existing);
-
-        return Response.ok(Mapper.toDto(existing)).build();
+        return Response.ok(bookService.updateBook(id, dto)).build();
     }
 
-    /**
-     * DELETE /api/books/{id} - Remove a book (only if no copies are borrowed)
-     */
     @DELETE
     @Path("/{id}")
-    @Transactional
     @Operation(summary = "Delete a book")
     @APIResponse(responseCode = "204", description = "Book deleted successfully")
     @APIResponse(responseCode = "404", description = "Book not found")
     @APIResponse(responseCode = "409", description = "Cannot delete - copies are borrowed")
     public Response deleteBook(@PathParam("id") UUID id) {
-        Book book = bookRepository.findByIdOptional(id)
-                .orElseThrow(() -> new WebApplicationException("Book not found", Response.Status.NOT_FOUND));
-
-        long available = bookRepository.countAvailableCopies(id);
-        if (available < book.getTotalCopies()) {
-            return Response.status(Response.Status.CONFLICT)
-                    .entity("{\"error\": \"Cannot delete book - copies are currently borrowed\"}")
-                    .build();
-        }
-
-        bookRepository.delete(book);
+        bookService.deleteBook(id);
         return Response.noContent().build();
     }
 
-    /**
-     * GET /api/books/search - Search by author and/or title
-     */
     @GET
     @Path("/search")
     @Operation(summary = "Search books by author and/or title")
@@ -161,10 +79,6 @@ public class BookResource {
     public List<BookDto> searchBooks(
             @QueryParam("author") String author,
             @QueryParam("title") String title) {
-
-        List<Book> books = bookRepository.searchByAuthorAndTitle(author, title);
-        return books.stream()
-                .map(Mapper::toDto)
-                .toList();
+        return bookService.searchBooks(author, title);
     }
 }
