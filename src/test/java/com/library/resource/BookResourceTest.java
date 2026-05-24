@@ -13,7 +13,7 @@ class BookResourceTest {
 
     // Helper to generate unique ISBNs
     private String uniqueIsbn() {
-        return "978-UNIQUE-" + System.currentTimeMillis();
+        return "978-X-" + System.currentTimeMillis();
     }
 
     @Test

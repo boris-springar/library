@@ -5,6 +5,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -38,5 +39,9 @@ public class CheckoutRepository implements PanacheRepositoryBase<Checkout, UUID>
 
     public List<Checkout> findActiveCheckoutsByMember(Long memberId) {
         return list("memberId = ?1 and returned = false", memberId);
+    }
+
+    public Optional<Checkout> findByIdOptional(UUID id) {
+        return findByIdOptional(id);
     }
 }

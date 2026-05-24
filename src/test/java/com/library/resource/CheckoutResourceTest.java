@@ -18,11 +18,17 @@ class CheckoutResourceTest {
     private UUID bookId;
     private Long memberId = 1L;
 
+    private String uniqueIsbn() {
+        return "978-X-" + System.currentTimeMillis();
+    }
+
     @BeforeEach
     void setup() {
+        String uniqueIsbn = uniqueIsbn();
+
         bookId = UUID.fromString(given()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new BookCreateDto("Test Book", "Test Author", "ISBN-TEST-001", 2024, 1))
+                .body(new BookCreateDto("Test Book", "Test Author", uniqueIsbn, 2024, 1))
                 .when()
                 .post("/api/books")
                 .then()
@@ -38,53 +44,57 @@ class CheckoutResourceTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new CheckoutRequestDto(bookId, memberId))
                 .when()
-                .post("/api/loans")
+                .post("/api/checkout")
                 .then()
                 .statusCode(201)
-                .body("bookId", equalTo(bookId))
+                .body("bookId", equalTo(bookId.toString()))
                 .body("returned", is(false));
     }
 
     @Test
     void testMaxLoansRule() {
-        // Create 3 more books
+        // Create 3 more books with UNIQUE ISBNs
         for (int i = 0; i < 3; i++) {
-            UUID newBookId = given()
+            String uniqueIsbn = uniqueIsbn();
+            UUID newBookId = UUID.fromString(given()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new BookCreateDto("Book " + i, "Author", "ISBN-" + i, 2024, 1))
+                    .body(new BookCreateDto("Book " + i, "Author", uniqueIsbn, 2024, 1))
                     .when()
-                    .post("/api/books")
+                    .post("/api/checkout")
                     .then()
                     .statusCode(201)
                     .extract()
-                    .path("id");
+                    .path("id")
+            );
 
             // Checkout each
             given()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new CheckoutRequestDto(newBookId, memberId))
                     .when()
-                    .post("/api/loans")
+                    .post("/api/checkout")
                     .then()
                     .statusCode(201);
         }
 
-        // Try 4th
-        UUID extraBookId = given()
+        // Try 4th book
+        String extraIsbn = uniqueIsbn();
+        UUID extraBookId = UUID.fromString(given()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new BookCreateDto("Extra Book", "Author", "ISBN-EXTRA", 2024, 1))
+                .body(new BookCreateDto("Extra Book", "Author", extraIsbn, 2024, 1))
                 .when()
                 .post("/api/books")
                 .then()
                 .statusCode(201)
                 .extract()
-                .path("id");
+                .path("id")
+        );
 
         given()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new CheckoutRequestDto(extraBookId, memberId))
                 .when()
-                .post("/api/loans")
+                .post("/api/checkout")
                 .then()
                 .statusCode(409)
                 .body("error", containsString("maximum of 3"));
@@ -97,16 +107,16 @@ class CheckoutResourceTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new CheckoutRequestDto(bookId, memberId))
                 .when()
-                .post("/api/loans")
+                .post("/api/checkout")
                 .then()
                 .statusCode(201);
 
-        // Try again
+        // Try again with a different member
         given()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new CheckoutRequestDto(bookId, memberId + 1))
                 .when()
-                .post("/api/loans")
+                .post("/api/checkout")
                 .then()
                 .statusCode(409)
                 .body("error", containsString("No copies available"));
