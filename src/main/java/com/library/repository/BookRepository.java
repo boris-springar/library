@@ -48,12 +48,6 @@ public class BookRepository implements PanacheRepositoryBase<Book, UUID> {
             return listAll();
         }
 
-        // Note: In a real production scenario, using a Query object builder is safer for dynamic params
-        // For simplicity in this snippet, we'll use the find method with a fixed query structure if possible,
-        // or rely on the 'find' method with named parameters if we constructed a named query.
-        // However, Panache allows passing a query string and parameters directly.
-
-        // Re-implementing with Panache's find(String query, Object... parameters)
         String finalQuery = "select b from Book b";
         List<String> conditions = new java.util.ArrayList<>();
         List<Object> finalParams = new java.util.ArrayList<>();
