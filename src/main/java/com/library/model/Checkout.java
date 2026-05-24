@@ -1,13 +1,22 @@
 package com.library.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
-@Table(name = "loans")
-public class Checkout extends PanacheEntity {
+@Table(name = "checkouts")
+public class Checkout extends PanacheEntityBase {
+
+
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @org.hibernate.annotations.UuidGenerator
+    @Column(updatable = false, nullable = false)
+    public UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)

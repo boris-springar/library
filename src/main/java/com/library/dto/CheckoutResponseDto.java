@@ -1,10 +1,11 @@
 package com.library.dto;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public record CheckoutResponseDto(
-        Long id,
-        Long bookId,
+        UUID id,
+        UUID bookId,
         String bookTitle,
         Long memberId,
         LocalDate loanDate,
