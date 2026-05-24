@@ -18,6 +18,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.util.List;
+import java.util.UUID;
 
 @Path("/api/books")
 @Produces(MediaType.APPLICATION_JSON)
@@ -87,7 +88,7 @@ public class BookResource {
     @Operation(summary = "Get a single book by ID")
     @APIResponse(responseCode = "200", description = "Book found")
     @APIResponse(responseCode = "404", description = "Book not found")
-    public Response getBook(@PathParam("id") Long id) {
+    public Response getBook(@PathParam("id") UUID id) {
         Book book = bookRepository.findByIdOptional(id)
                 .orElseThrow(() -> new WebApplicationException("Book not found", Response.Status.NOT_FOUND));
 
@@ -104,7 +105,7 @@ public class BookResource {
     @APIResponse(responseCode = "200", description = "Book updated successfully")
     @APIResponse(responseCode = "404", description = "Book not found")
     @APIResponse(responseCode = "409", description = "ISBN conflict")
-    public Response updateBook(@PathParam("id") Long id, @Valid BookDto dto) {
+    public Response updateBook(@PathParam("id") UUID id, @Valid BookDto dto) {
         Book existing = bookRepository.findByIdOptional(id)
                 .orElseThrow(() -> new WebApplicationException("Book not found", Response.Status.NOT_FOUND));
 
@@ -135,7 +136,7 @@ public class BookResource {
     @APIResponse(responseCode = "204", description = "Book deleted successfully")
     @APIResponse(responseCode = "404", description = "Book not found")
     @APIResponse(responseCode = "409", description = "Cannot delete - copies are borrowed")
-    public Response deleteBook(@PathParam("id") Long id) {
+    public Response deleteBook(@PathParam("id") UUID id) {
         Book book = bookRepository.findByIdOptional(id)
                 .orElseThrow(() -> new WebApplicationException("Book not found", Response.Status.NOT_FOUND));
 

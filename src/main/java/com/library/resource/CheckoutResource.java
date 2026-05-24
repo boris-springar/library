@@ -19,10 +19,10 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import java.time.LocalDate;
 import java.util.List;
 
-@Path("/api/loans")
+@Path("/api/checkouts")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Tag(name = "Loans", description = "Checkout/Loan management endpoints")
+@Tag(name = "Checkouts", description = "Endpoint for managing book checkouts")
 public class CheckoutResource {
 
     @Inject
@@ -32,7 +32,7 @@ public class CheckoutResource {
     BookRepository bookRepository;
 
     /**
-     * POST /api/loans - Borrow a book
+     * Borrow a book
      * Business rules:
      *   - Max 3 active loans per member
      *   - At least 1 copy must be available
@@ -50,10 +50,10 @@ public class CheckoutResource {
                 .orElseThrow(() -> new WebApplicationException("Book not found", Response.Status.NOT_FOUND));
 
         // 2. Check max 3 active loans per member
-        long activeLoans = 2;// checkoutRepository.countActiveCheckoutsByMember(dto.memberId());
+        long activeLoans = checkoutRepository.countActiveCheckoutsByMember(dto.memberId());
         if (activeLoans >= 3) {
             return Response.status(Response.Status.CONFLICT)
-                    .entity("{\"error\": \"Member has reached the maximum of 3 active loans\"}")
+                    .entity("{\"error\": \"Member has reached the maximum of 3 active checked out books\"}")
                     .build();
         }
 

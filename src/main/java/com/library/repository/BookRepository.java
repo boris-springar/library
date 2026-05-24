@@ -3,13 +3,14 @@ package com.library.repository;
 import com.library.model.Book;
 import com.library.model.Checkout;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @ApplicationScoped
-public class BookRepository implements PanacheRepository<Book> {
-
+public class BookRepository implements PanacheRepositoryBase<Book, UUID> {
     /**
      * Checks if a book with the given ISBN already exists.
      */
@@ -77,9 +78,12 @@ public class BookRepository implements PanacheRepository<Book> {
      * Calculates the number of available copies for a specific book.
      * Available = Total Copies - (Active Loans for this book)
      */
-    public long countAvailableCopies(Long bookId) {
-        long total = findById(bookId).getTotalCopies();
+    public long countAvailableCopies(UUID bookId) { // Changed from Long to String
+        Book book = findByIdOptional(bookId).orElse(null);
+        if (book == null) return 0;
+
+        // Update the query to use the String ID
         long borrowed = Checkout.count("book.id = ?1 and returned = false", bookId);
-        return total - borrowed;
+        return book.getTotalCopies() - borrowed;
     }
 }

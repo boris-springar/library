@@ -2,9 +2,11 @@ package com.library.dto;
 
 import jakarta.validation.constraints.NotNull;
 
+import java.util.UUID;
+
 public record CheckoutRequestDto(
         @NotNull(message = "Book ID is required")
-        Long bookId,
+        UUID bookId,
 
         @NotNull(message = "Member ID is required")
         Long memberId
