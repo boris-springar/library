@@ -14,7 +14,3 @@ public class ExampleResource {
         return "Hello from Quarkus REST With a custom message.";
     }
 }
-
-@Path("api") {
-    @Path()
-}
