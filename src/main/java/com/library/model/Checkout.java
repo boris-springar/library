@@ -22,9 +22,9 @@ public class Checkout extends PanacheEntityBase {
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
-    @Column(name = "member_id", nullable = false)
-    @NotNull(message = "Member ID is required")
-    private Long memberId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @Column(name = "loan_date", nullable = false)
     @NotNull(message = "Loan date is required")
@@ -44,8 +44,8 @@ public class Checkout extends PanacheEntityBase {
     public Book getBook() { return book; }
     public void setBook(Book book) { this.book = book; }
 
-    public Long getMemberId() { return memberId; }
-    public void setMemberId(Long memberId) { this.memberId = memberId; }
+    public Member getMember() { return member; }
+    public void setMember(Member member) { this.member = member; }
 
     public LocalDate getLoanDate() { return loanDate; }
     public void setLoanDate(LocalDate loanDate) { this.loanDate = loanDate; }

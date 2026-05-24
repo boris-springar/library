@@ -4,8 +4,10 @@ import com.library.dto.CheckoutRequestDto;
 import com.library.dto.CheckoutResponseDto;
 import com.library.model.Book;
 import com.library.model.Checkout;
+import com.library.model.Member;
 import com.library.repository.BookRepository;
 import com.library.repository.CheckoutRepository;
+import com.library.repository.MemberRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -25,6 +27,9 @@ public class CheckoutService {
     @Inject
     BookRepository bookRepository;
 
+    @Inject
+    MemberRepository memberRepository;
+
     /**
      * Executes the checkout logic.
      * Throws WebApplicationException for business rule violations.
@@ -33,6 +38,9 @@ public class CheckoutService {
     public CheckoutResponseDto checkoutBook(CheckoutRequestDto dto) {
         Book book = bookRepository.findByIdOptional(dto.bookId())
                 .orElseThrow(() -> new WebApplicationException("Book not found", Response.Status.NOT_FOUND));
+
+        Member member = memberRepository.findByIdOptional(dto.memberId()).
+                orElseThrow(() -> new WebApplicationException("Member not found", Response.Status.NOT_FOUND));
 
         // Each member can have a maximum of 3 books checked out at a time.
         long activeLoans = checkoutRepository.countActiveCheckoutsByMember(dto.memberId());
@@ -48,7 +56,7 @@ public class CheckoutService {
 
         Checkout checkout = new Checkout();
         checkout.setBook(book);
-        checkout.setMemberId(dto.memberId());
+        checkout.setMember(member);
         checkout.setLoanDate(LocalDate.now());
         checkout.setDueDate(LocalDate.now().plusDays(14)); // Hardcoded 14 days
         checkout.setReturned(false);

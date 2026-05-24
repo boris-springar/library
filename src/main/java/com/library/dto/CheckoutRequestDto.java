@@ -9,5 +9,5 @@ public record CheckoutRequestDto(
         UUID bookId,
 
         @NotNull(message = "Member ID is required")
-        Long memberId
+        UUID memberId
 ) {}

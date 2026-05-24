@@ -7,7 +7,7 @@ public record CheckoutResponseDto(
         UUID id,
         UUID bookId,
         String bookTitle,
-        Long memberId,
+        UUID memberId,
         LocalDate loanDate,
         LocalDate dueDate,
         boolean returned
@@ -17,7 +17,7 @@ public record CheckoutResponseDto(
                 checkout.id,
                 checkout.getBook().id,
                 checkout.getBook().getTitle(),
-                checkout.getMemberId(),
+                checkout.getMember().id,
                 checkout.getLoanDate(),
                 checkout.getDueDate(),
                 checkout.isReturned()

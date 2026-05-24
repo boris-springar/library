@@ -2,6 +2,7 @@ package com.library.resource;
 
 import com.library.dto.BookCreateDto;
 import com.library.dto.CheckoutRequestDto;
+import com.library.dto.MemberCreateDto;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.ws.rs.core.MediaType;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +17,7 @@ import static org.hamcrest.Matchers.*;
 class CheckoutResourceTest {
 
     private UUID bookId;
-    private Long memberId = 1L;
+    private UUID memberId; // Changed from Long to UUID
 
     private String uniqueIsbn() {
         return "978-X-" + System.currentTimeMillis();
@@ -24,10 +25,22 @@ class CheckoutResourceTest {
 
     @BeforeEach
     void setup() {
-        memberId = 100L + System.currentTimeMillis();
+        // 1. Create a unique Member
+        String uniqueEmail = "member-" + System.currentTimeMillis() + "@test.com";
 
+        memberId = UUID.fromString(given()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new MemberCreateDto("Test", "User", uniqueEmail))
+                .when()
+                .post("/api/members")
+                .then()
+                .statusCode(201)
+                .extract()
+                .path("id")
+        );
+
+        // 2. Create a Book
         String uniqueIsbn = uniqueIsbn();
-
         bookId = UUID.fromString(given()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new BookCreateDto("Test Book", "Test Author", uniqueIsbn, 2024, 2))
@@ -44,7 +57,7 @@ class CheckoutResourceTest {
     void testSuccessfulCheckout() {
         given()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new CheckoutRequestDto(bookId, memberId))
+                .body(new CheckoutRequestDto(bookId, memberId)) // Now passes UUID
                 .when()
                 .post("/api/checkout")
                 .then()
@@ -55,6 +68,7 @@ class CheckoutResourceTest {
 
     @Test
     void testMaxCheckoutsRule() {
+        // Create 3 books and checkout each
         for (int i = 0; i < 3; i++) {
             String uniqueIsbn = uniqueIsbn();
             UUID newBookId = UUID.fromString(given()
@@ -102,7 +116,6 @@ class CheckoutResourceTest {
 
     @Test
     void testNoCopiesAvailable() {
-        // memberId is unique, so no previous checkouts
         // Checkout the only copy
         given()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -112,8 +125,20 @@ class CheckoutResourceTest {
                 .then()
                 .statusCode(201);
 
-        // Try again with a different member (also unique)
-        Long differentMemberId = memberId + 1;
+        // Create a DIFFERENT member for the second attempt
+        String uniqueEmail2 = "member2-" + System.currentTimeMillis() + "@test.com";
+        UUID differentMemberId = UUID.fromString(given()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new MemberCreateDto("Other", "User", uniqueEmail2))
+                .when()
+                .post("/api/members")
+                .then()
+                .statusCode(201)
+                .extract()
+                .path("id")
+        );
+
+        // Try again with the different member
         given()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new CheckoutRequestDto(bookId, differentMemberId))

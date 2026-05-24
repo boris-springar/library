@@ -29,16 +29,13 @@ public class CheckoutRepository implements PanacheRepositoryBase<Checkout, UUID>
     /**
      * Finds a specific loan by ID to process returns.
      */
-    /*public Checkout findByIdOrThrow(Long id) {
-        return this.<Checkout>findByIdOrFail(id);
-    }*/
 
-    public long countActiveCheckoutsByMember(Long memberId) {
-        return count("memberId = ?1 and returned = false", memberId);
+    public long countActiveCheckoutsByMember(UUID memberId) {
+        return count("member.id = ?1 and returned = false", memberId);
     }
 
     public List<Checkout> findActiveCheckoutsByMember(Long memberId) {
-        return list("memberId = ?1 and returned = false", memberId);
+        return list("member.id = ?1 and returned = false", memberId);
     }
 
     public Optional<Checkout> findByIdOptional(UUID id) {
