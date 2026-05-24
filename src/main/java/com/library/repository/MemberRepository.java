@@ -12,8 +12,4 @@ public class MemberRepository implements PanacheRepositoryBase<Member, UUID> {
     public boolean existsByEmail(String email) {
         return find("email", email).count() > 0;
     }
-
-    public Optional<Member> findByEmail(String email) {
-        return find("email", email).firstResultOptional();
-    }
 }

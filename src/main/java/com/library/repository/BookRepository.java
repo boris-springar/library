@@ -2,7 +2,6 @@ package com.library.repository;
 
 import com.library.model.Book;
 import com.library.model.Checkout;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
@@ -70,7 +69,7 @@ public class BookRepository implements PanacheRepositoryBase<Book, UUID> {
 
     /**
      * Calculates the number of available copies for a specific book.
-     * Available = Total Copies - (Active Loans for this book)
+     * Available = Total Copies - (Active checkouts for this book)
      */
     public long countAvailableCopies(UUID bookId) { // Changed from Long to String
         Book book = findByIdOptional(bookId).orElse(null);

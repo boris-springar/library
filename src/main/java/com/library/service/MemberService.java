@@ -20,9 +20,6 @@ public class MemberService {
     @Inject
     MemberRepository memberRepository;
 
-    @Inject
-    CheckoutRepository checkoutRepository;
-
     @Transactional
     public MemberDto createMember(MemberCreateDto dto) {
         if (memberRepository.existsByEmail(dto.email())) {
@@ -42,7 +39,6 @@ public class MemberService {
     public List<MemberDto> listMembers() {
         List<Member> members = memberRepository.listAll();
         return members.stream().map(m -> {
-            long activeLoans = checkoutRepository.countActiveCheckoutsByMember(m.getId());
             return MemberDto.fromEntity(m);
         }).toList();
     }
@@ -50,7 +46,6 @@ public class MemberService {
     public MemberDto getMember(UUID id) {
         Member member = memberRepository.findByIdOptional(id)
                 .orElseThrow(() -> new WebApplicationException("Member not found", Response.Status.NOT_FOUND));
-        long activeLoans = checkoutRepository.countActiveCheckoutsByMember(id);
         return MemberDto.fromEntity(member);
     }
 }

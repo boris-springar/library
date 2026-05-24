@@ -41,7 +41,7 @@ public class CheckoutResource {
     @Path("/{id}/return")
     @Operation(summary = "Return a borrowed book")
     @APIResponse(responseCode = "200", description = "Book returned successfully")
-    @APIResponse(responseCode = "404", description = "Loan not found")
+    @APIResponse(responseCode = "404", description = "Checkout not found")
     @APIResponse(responseCode = "409", description = "Book already returned")
     public Response returnBook(@PathParam("id") UUID id) {
         CheckoutResponseDto result = checkoutService.returnBook(id);
@@ -51,7 +51,7 @@ public class CheckoutResource {
     @GET
     @Operation(summary = "List active checkouts for a member")
     @APIResponse(responseCode = "200", description = "Checkouts retrieved successfully")
-    public List<CheckoutResponseDto> getActiveLoans(@QueryParam("memberId") UUID memberId) {
+    public List<CheckoutResponseDto> getActiveCheckouts(@QueryParam("memberId") UUID memberId) {
         return checkoutService.getActiveCheckouts(memberId);
     }
 }

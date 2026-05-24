@@ -43,9 +43,9 @@ public class CheckoutService {
                 orElseThrow(() -> new WebApplicationException("Member not found", Response.Status.NOT_FOUND));
 
         // Each member can have a maximum of 3 books checked out at a time.
-        long activeLoans = checkoutRepository.countActiveCheckoutsByMember(dto.memberId());
-        if (activeLoans >= 3) {
-            throw new WebApplicationException("Member has reached the maximum of 3 active loans", Response.Status.CONFLICT);
+        long activeCheckouts = checkoutRepository.countActiveCheckoutsByMember(dto.memberId());
+        if (activeCheckouts >= 3) {
+            throw new WebApplicationException("Member has reached the maximum of 3 active checkouts", Response.Status.CONFLICT);
         }
 
         // At least one book must be available at all times.
@@ -57,7 +57,7 @@ public class CheckoutService {
         Checkout checkout = new Checkout();
         checkout.setBook(book);
         checkout.setMember(member);
-        checkout.setLoanDate(LocalDate.now());
+        checkout.setCheckoutDate(LocalDate.now());
         checkout.setDueDate(LocalDate.now().plusDays(14)); // Hardcoded 14 days
         checkout.setReturned(false);
 

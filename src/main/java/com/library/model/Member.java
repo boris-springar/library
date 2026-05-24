@@ -52,7 +52,4 @@ public class Member extends PanacheEntityBase {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-
-    public List<Checkout> getCheckouts() { return checkouts; }
-    public void setCheckouts(List<Checkout> checkouts) { this.checkouts = checkouts; }
 }
