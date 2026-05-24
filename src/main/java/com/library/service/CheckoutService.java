@@ -13,10 +13,10 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @ApplicationScoped
 public class CheckoutService {
@@ -72,7 +72,7 @@ public class CheckoutService {
     @Transactional
     public CheckoutResponseDto returnBook(java.util.UUID id) {
         Checkout checkout = checkoutRepository.findByIdOptional(id)
-                .orElseThrow(() -> new WebApplicationException("Loan not found", Response.Status.NOT_FOUND));
+                .orElseThrow(() -> new WebApplicationException("Checkout not found", Response.Status.NOT_FOUND));
 
         if (checkout.isReturned()) {
             throw new WebApplicationException("Book already returned", Response.Status.CONFLICT);
@@ -85,9 +85,9 @@ public class CheckoutService {
     }
 
     /**
-     * Fetches active loans for a member.
+     * Fetches active checkouts for a member.
      */
-    public List<CheckoutResponseDto> getActiveLoans(Long memberId) {
+    public List<CheckoutResponseDto> getActiveCheckouts(UUID memberId) {
         if (memberId == null) {
             throw new WebApplicationException("memberId is required", Response.Status.BAD_REQUEST);
         }

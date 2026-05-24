@@ -34,11 +34,11 @@ public class CheckoutRepository implements PanacheRepositoryBase<Checkout, UUID>
         return count("member.id = ?1 and returned = false", memberId);
     }
 
-    public List<Checkout> findActiveCheckoutsByMember(Long memberId) {
+    public List<Checkout> findActiveCheckoutsByMember(UUID memberId) {
         return list("member.id = ?1 and returned = false", memberId);
     }
 
-    public Optional<Checkout> findByIdOptional(UUID id) {
+    /*public Optional<Checkout> findByIdOptional(UUID id) {
         return findByIdOptional(id);
-    }
+    }*/
 }

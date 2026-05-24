@@ -49,9 +49,9 @@ public class CheckoutResource {
     }
 
     @GET
-    @Operation(summary = "List active loans for a member")
-    @APIResponse(responseCode = "200", description = "Loans retrieved successfully")
-    public List<CheckoutResponseDto> getActiveLoans(@QueryParam("memberId") Long memberId) {
-        return checkoutService.getActiveLoans(memberId);
+    @Operation(summary = "List active checkouts for a member")
+    @APIResponse(responseCode = "200", description = "Checkouts retrieved successfully")
+    public List<CheckoutResponseDto> getActiveLoans(@QueryParam("memberId") UUID memberId) {
+        return checkoutService.getActiveCheckouts(memberId);
     }
 }
