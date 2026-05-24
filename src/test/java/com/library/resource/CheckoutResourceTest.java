@@ -30,7 +30,7 @@ class CheckoutResourceTest {
 
         bookId = UUID.fromString(given()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new BookCreateDto("Test Book", "Test Author", uniqueIsbn, 2024, 1))
+                .body(new BookCreateDto("Test Book", "Test Author", uniqueIsbn, 2024, 2))
                 .when()
                 .post("/api/books")
                 .then()
@@ -54,12 +54,12 @@ class CheckoutResourceTest {
     }
 
     @Test
-    void testMaxLoansRule() {
+    void testMaxCheckoutsRule() {
         for (int i = 0; i < 3; i++) {
             String uniqueIsbn = uniqueIsbn();
             UUID newBookId = UUID.fromString(given()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new BookCreateDto("Book " + i, "Author", uniqueIsbn, 2024, 1))
+                    .body(new BookCreateDto("Book " + i, "Author", uniqueIsbn, 2024, 2))
                     .when()
                     .post("/api/books")
                     .then()
