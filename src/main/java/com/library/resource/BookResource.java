@@ -1,5 +1,6 @@
 package com.library.resource;
 
+import com.library.dto.BookCreateDto;
 import com.library.dto.BookDto;
 import com.library.dto.PageResponse;
 import com.library.model.Book;
@@ -35,7 +36,7 @@ public class BookResource {
     @Operation(summary = "Add a new book")
     @APIResponse(responseCode = "201", description = "Book created successfully")
     @APIResponse(responseCode = "400", description = "Validation error or duplicate ISBN")
-    public Response createBook(@Valid BookDto dto) {
+    public Response createBook(@Valid BookCreateDto dto) {
         if (bookRepository.existsByIsbn(dto.isbn())) {
             return Response.status(Response.Status.CONFLICT)
                     .entity("{\"error\": \"ISBN already exists\"}")
