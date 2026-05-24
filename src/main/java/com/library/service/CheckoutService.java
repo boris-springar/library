@@ -1,0 +1,91 @@
+package com.library.service;
+
+import com.library.dto.CheckoutRequestDto;
+import com.library.dto.CheckoutResponseDto;
+import com.library.model.Book;
+import com.library.model.Checkout;
+import com.library.repository.BookRepository;
+import com.library.repository.CheckoutRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@ApplicationScoped
+public class CheckoutService {
+
+    @Inject
+    CheckoutRepository checkoutRepository;
+
+    @Inject
+    BookRepository bookRepository;
+
+    /**
+     * Executes the checkout logic.
+     * Throws WebApplicationException for business rule violations.
+     */
+    @Transactional
+    public CheckoutResponseDto checkoutBook(CheckoutRequestDto dto) {
+        Book book = bookRepository.findByIdOptional(dto.bookId())
+                .orElseThrow(() -> new WebApplicationException("Book not found", Response.Status.NOT_FOUND));
+
+        // Each member can have a maximum of 3 books checked out at a time.
+        long activeLoans = checkoutRepository.countActiveCheckoutsByMember(dto.memberId());
+        if (activeLoans >= 3) {
+            throw new WebApplicationException("Member has reached the maximum of 3 active loans", Response.Status.CONFLICT);
+        }
+
+        // At least one book must be available at all times.
+        long availableCopies = bookRepository.countAvailableCopies(dto.bookId());
+        if (availableCopies <= 0) {
+            throw new WebApplicationException("No copies available for checkout", Response.Status.CONFLICT);
+        }
+
+        Checkout checkout = new Checkout();
+        checkout.setBook(book);
+        checkout.setMemberId(dto.memberId());
+        checkout.setLoanDate(LocalDate.now());
+        checkout.setDueDate(LocalDate.now().plusDays(14)); // Hardcoded 14 days
+        checkout.setReturned(false);
+
+        checkoutRepository.persist(checkout);
+
+        return CheckoutResponseDto.fromEntity(checkout);
+    }
+
+    /**
+     * Executes the return logic.
+     */
+    @Transactional
+    public CheckoutResponseDto returnBook(java.util.UUID id) {
+        Checkout checkout = checkoutRepository.findByIdOptional(id)
+                .orElseThrow(() -> new WebApplicationException("Loan not found", Response.Status.NOT_FOUND));
+
+        if (checkout.isReturned()) {
+            throw new WebApplicationException("Book already returned", Response.Status.CONFLICT);
+        }
+
+        checkout.setReturned(true);
+        checkoutRepository.persist(checkout);
+
+        return CheckoutResponseDto.fromEntity(checkout);
+    }
+
+    /**
+     * Fetches active loans for a member.
+     */
+    public List<CheckoutResponseDto> getActiveLoans(Long memberId) {
+        if (memberId == null) {
+            throw new WebApplicationException("memberId is required", Response.Status.BAD_REQUEST);
+        }
+        List<Checkout> checkouts = checkoutRepository.findActiveCheckoutsByMember(memberId);
+        return checkouts.stream()
+                .map(CheckoutResponseDto::fromEntity)
+                .toList();
+    }
+}

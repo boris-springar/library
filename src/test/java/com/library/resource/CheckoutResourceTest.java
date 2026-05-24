@@ -20,8 +20,7 @@ class CheckoutResourceTest {
 
     @BeforeEach
     void setup() {
-        // Create a book with 1 copy
-        UUID response = given()
+        bookId = UUID.fromString(given()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new BookCreateDto("Test Book", "Test Author", "ISBN-TEST-001", 2024, 1))
                 .when()
@@ -29,25 +28,15 @@ class CheckoutResourceTest {
                 .then()
                 .statusCode(201)
                 .extract()
-                .path("id"); // This is a String (UUID)
-
-        bookId = response;
+                .path("id")
+        );
     }
 
     @Test
     void testSuccessfulCheckout() {
-        // Pass the UUID string directly.
-        // Ensure your CheckoutRequestDto accepts Long memberId and UUID bookId?
-        // Wait, your DTO definition:
-        // public record CheckoutRequestDto(Long bookId, Long memberId)
-        // <-- THIS IS THE PROBLEM. Your DTO expects Long bookId, but you have UUID.
-
-        // You must update CheckoutRequestDto to accept String (UUID) or UUID type.
-
-        // Assuming you updated the DTO to String bookId:
         given()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new CheckoutRequestDto(bookId, memberId)) // Pass string directly
+                .body(new CheckoutRequestDto(bookId, memberId))
                 .when()
                 .post("/api/loans")
                 .then()

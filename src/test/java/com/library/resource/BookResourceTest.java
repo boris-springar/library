@@ -11,10 +11,16 @@ import static org.hamcrest.Matchers.*;
 @QuarkusTest
 class BookResourceTest {
 
+    // Helper to generate unique ISBNs
+    private String uniqueIsbn() {
+        return "978-UNIQUE-" + System.currentTimeMillis();
+    }
+
     @Test
     void testCreateBook() {
+        String isbn = uniqueIsbn(); // Unique ISBN
         BookCreateDto dto = new BookCreateDto(
-                "Dune", "Frank Herbert", "978-0441172719", 1965, 2
+                "Dune", "Frank Herbert", isbn, 1965, 2
         );
 
         given()
@@ -30,13 +36,27 @@ class BookResourceTest {
 
     @Test
     void testDuplicateISBN() {
-        BookCreateDto dto = new BookCreateDto(
-                "Another Book", "Author", "978-0441172719", 2020, 1
-        );
+        String isbn = uniqueIsbn(); // Unique ISBN for the FIRST book
 
+        // 1. Create the first book
+        BookCreateDto first = new BookCreateDto(
+                "First Book", "Author", isbn, 2020, 1
+        );
         given()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(dto)
+                .body(first)
+                .when()
+                .post("/api/books")
+                .then()
+                .statusCode(201);
+
+        // 2. Try to create a DUPLICATE with the SAME ISBN
+        BookCreateDto duplicate = new BookCreateDto(
+                "Duplicate Book", "Author", isbn, 2021, 1
+        );
+        given()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(duplicate)
                 .when()
                 .post("/api/books")
                 .then()
@@ -51,6 +71,6 @@ class BookResourceTest {
                 .get("/api/books")
                 .then()
                 .statusCode(200)
-                .body("content", notNullValue());
+                .body("content", notNullValue()); // Should return empty list or list with books from other tests
     }
 }
