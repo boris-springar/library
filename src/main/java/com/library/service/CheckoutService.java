@@ -42,7 +42,7 @@ public class CheckoutService {
 
         // At least one book must be available at all times.
         long availableCopies = bookRepository.countAvailableCopies(dto.bookId());
-        if (availableCopies <= 0) {
+        if (availableCopies <= 1) {
             throw new WebApplicationException("No copies available for checkout", Response.Status.CONFLICT);
         }
 
