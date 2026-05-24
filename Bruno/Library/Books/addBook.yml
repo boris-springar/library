@@ -1,0 +1,25 @@
+info:
+  name: addBook
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: http://127.0.0.1:8080/api/books
+  body:
+    type: json
+    data: |-
+      {
+        "title": ">",
+        "author": "5",
+        "isbn": "G",
+        "publicationYear": 1000,
+        "totalCopies": 1
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

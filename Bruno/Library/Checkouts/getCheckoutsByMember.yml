@@ -1,0 +1,19 @@
+info:
+  name: getCheckoutsByMember
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: http://127.0.0.1:8080/api/checkout?memberId=a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+  params:
+    - name: memberId
+      value: a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,19 @@
+info:
+  name: deleteBook
+  type: http
+  seq: 6
+
+http:
+  method: DELETE
+  url: http://127.0.0.1:8080/api/books/:id
+  params:
+    - name: id
+      value: 6f34cfc0-b1f9-4f20-855d-2fe2c4756e1b
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,22 @@
+info:
+  name: borrowBook
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://127.0.0.1:8080/api/checkout
+  body:
+    type: json
+    data: |-
+      {
+        "bookId": "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b11",
+        "memberId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

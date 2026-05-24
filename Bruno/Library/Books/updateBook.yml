@@ -1,0 +1,29 @@
+info:
+  name: updateBook
+  type: http
+  seq: 5
+
+http:
+  method: PUT
+  url: http://127.0.0.1:8080/api/books/:id
+  params:
+    - name: id
+      value: 6f34cfc0-b1f9-4f20-855d-2fe2c4756e1b
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "title": ";",
+        "author": "u",
+        "isbn": "C",
+        "publicationYear": 1000,
+        "totalCopies": 3
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
