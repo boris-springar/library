@@ -24,6 +24,8 @@ class CheckoutResourceTest {
 
     @BeforeEach
     void setup() {
+        memberId = 100L + System.currentTimeMillis();
+
         String uniqueIsbn = uniqueIsbn();
 
         bookId = UUID.fromString(given()
@@ -53,21 +55,19 @@ class CheckoutResourceTest {
 
     @Test
     void testMaxLoansRule() {
-        // Create 3 more books with UNIQUE ISBNs
         for (int i = 0; i < 3; i++) {
             String uniqueIsbn = uniqueIsbn();
             UUID newBookId = UUID.fromString(given()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new BookCreateDto("Book " + i, "Author", uniqueIsbn, 2024, 1))
                     .when()
-                    .post("/api/checkout")
+                    .post("/api/books")
                     .then()
                     .statusCode(201)
                     .extract()
                     .path("id")
             );
 
-            // Checkout each
             given()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new CheckoutRequestDto(newBookId, memberId))
@@ -102,6 +102,7 @@ class CheckoutResourceTest {
 
     @Test
     void testNoCopiesAvailable() {
+        // memberId is unique, so no previous checkouts
         // Checkout the only copy
         given()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -111,10 +112,11 @@ class CheckoutResourceTest {
                 .then()
                 .statusCode(201);
 
-        // Try again with a different member
+        // Try again with a different member (also unique)
+        Long differentMemberId = memberId + 1;
         given()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new CheckoutRequestDto(bookId, memberId + 1))
+                .body(new CheckoutRequestDto(bookId, differentMemberId))
                 .when()
                 .post("/api/checkout")
                 .then()
