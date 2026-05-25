@@ -1,10 +1,6 @@
-# library
+ 
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
-
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
-
-## Running the application in dev mode
+# Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:
 
@@ -12,65 +8,128 @@ You can run your application in dev mode that enables live coding using:
 ./mvnw quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+**NOTE**: for the dev configuration there is a database seed.
 
-## Packaging and running the application
+There are three books and three members inserted into the database whenever the application starts with the above command.
 
-The application can be packaged using:
+# Testing the APIs
 
-```shell script
-./mvnw package
+## swagger-ui
+
+Once started, the quarkus server serves the swagger-ui on the local URL http://127.0.0.1:8080/q/swagger-ui
+
+You can explore and test the API endpoints there.
+
+## Bruno (postman alternative)
+
+The service features an auxilliary Bruno library that you can use for testing the API endpoints.
+
+You can open the Bruno collection by opening the library/Bruno folder in Bruno.
+
+## Curl
+
+You can also use the below curl commands, with the relevant variables adjusted to your liking.
+
+### Get book by ID
+```
+curl --request GET \
+  --url http://127.0.0.1:8080/api/books/b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b11
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
+### Get all books
+```
+curl --request GET \
+  --url http://127.0.0.1:8080/api/books
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
+### Search for books by author and/or title
+```
+curl --request GET \
+  --url 'http://127.0.0.1:8080/api/books/search?author=&title=Dune'
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
+### Add a book
+```
+curl --request POST \
+  --url http://127.0.0.1:8080/api/books \
+  --header 'content-type: application/json' \
+  --data '{
+  "title": ">",
+  "author": "5",
+  "isbn": "G",
+  "publicationYear": 1000,
+  "totalCopies": 1
+}'
 ```
 
-You can then execute your native executable with: `./target/library-1.0-SNAPSHOT-runner`
+### Update book
+```
+curl --request PUT \
+  --url http://127.0.0.1:8080/api/books/6f34cfc0-b1f9-4f20-855d-2fe2c4756e1b \
+  --header 'content-type: application/json' \
+  --data '{
+  "title": ";",
+  "author": "u",
+  "isbn": "C",
+  "publicationYear": 1000,
+  "totalCopies": 3
+}'
+```
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+### Delete a book
+```
+curl --request DELETE \
+  --url http://127.0.0.1:8080/api/books/6f34cfc0-b1f9-4f20-855d-2fe2c4756e1b
+```
 
-## Related Guides
+### Get all checkouts belonging to a specific member
+```
+curl --request GET \
+  --url 'http://127.0.0.1:8080/api/checkout?memberId=a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
+```
 
-- REST ([guide](https://quarkus.io/guides/rest)): Build RESTful web services and APIs using Jakarta REST (formerly
-  JAX-RS)
-- Hibernate ORM ([guide](https://quarkus.io/guides/hibernate-orm)): Object-relational mapping with JPA/Hibernate for
-  relational database access
-- JDBC Driver - H2 ([guide](https://quarkus.io/guides/datasource)): Connect to the H2 database via JDBC
+### Borrow a book
+```
+curl --request POST \
+  --url http://127.0.0.1:8080/api/checkout \
+  --header 'content-type: application/json' \
+  --data '{
+  "bookId": "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b11",
+  "memberId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+}'
+```
 
-## Provided Code
+### Return a book
+```
+curl --request POST \
+  --url http://127.0.0.1:8080/api/checkout/2bd48431-e6f3-444f-9d34-108d8ddf8a13/return \
+  --header 'content-type: application/json' \
+  --data '{
+  "bookId": "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b11",
+  "memberId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+}'
+```
 
-### Hibernate ORM
+### Get a member by ID
+```
+curl --request GET \
+  --url http://127.0.0.1:8080/api/members/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+```
 
-Create your first JPA entity
+### Get a list of members
+```
+curl --request GET \
+  --url http://127.0.0.1:8080/api/members
+```
 
-[Related guide section...](https://quarkus.io/guides/hibernate-orm)
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+### Add a new member
+```
+curl --request POST \
+  --url http://127.0.0.1:8080/api/members \
+  --header 'content-type: application/json' \
+  --data '{
+  "firstName": ".",
+  "lastName": "i",
+  "email": "="
+}'
+```
