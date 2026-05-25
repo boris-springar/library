@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
-// No 'id' field here
 public record BookCreateDto(
         @NotBlank(message = "Title is required")
         @Size(max = 255)

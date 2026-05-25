@@ -1,7 +1,7 @@
 package com.library.resource;
 
 import com.library.dto.BookCreateDto;
-import com.library.dto.CheckoutRequestDto;
+import com.library.dto.CheckoutCreateDto;
 import com.library.dto.MemberCreateDto;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.ws.rs.core.MediaType;
@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.*;
 class CheckoutResourceTest {
 
     private UUID bookId;
-    private UUID memberId; // Changed from Long to UUID
+    private UUID memberId;
 
     private String uniqueIsbn() {
         return "978-X-" + System.currentTimeMillis();
@@ -43,7 +43,7 @@ class CheckoutResourceTest {
         String uniqueIsbn = uniqueIsbn();
         bookId = UUID.fromString(given()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new BookCreateDto("Test Book", "Test Author", uniqueIsbn, 2024, 2))
+                .body(new BookCreateDto("Test Book", "Test Author", uniqueIsbn, 2024, 1))
                 .when()
                 .post("/api/books")
                 .then()
@@ -57,7 +57,7 @@ class CheckoutResourceTest {
     void testSuccessfulCheckout() {
         given()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new CheckoutRequestDto(bookId, memberId)) // Now passes UUID
+                .body(new CheckoutCreateDto(bookId, memberId))
                 .when()
                 .post("/api/checkout")
                 .then()
@@ -73,7 +73,7 @@ class CheckoutResourceTest {
             String uniqueIsbn = uniqueIsbn();
             UUID newBookId = UUID.fromString(given()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new BookCreateDto("Book " + i, "Author", uniqueIsbn, 2024, 2))
+                    .body(new BookCreateDto("Book " + i, "Author", uniqueIsbn, 2024, 1))
                     .when()
                     .post("/api/books")
                     .then()
@@ -84,7 +84,7 @@ class CheckoutResourceTest {
 
             given()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new CheckoutRequestDto(newBookId, memberId))
+                    .body(new CheckoutCreateDto(newBookId, memberId))
                     .when()
                     .post("/api/checkout")
                     .then()
@@ -106,7 +106,7 @@ class CheckoutResourceTest {
 
         given()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new CheckoutRequestDto(extraBookId, memberId))
+                .body(new CheckoutCreateDto(extraBookId, memberId))
                 .when()
                 .post("/api/checkout")
                 .then()
@@ -119,7 +119,7 @@ class CheckoutResourceTest {
         // Checkout the only copy
         given()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new CheckoutRequestDto(bookId, memberId))
+                .body(new CheckoutCreateDto(bookId, memberId))
                 .when()
                 .post("/api/checkout")
                 .then()
@@ -141,7 +141,7 @@ class CheckoutResourceTest {
         // Try again with the different member
         given()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new CheckoutRequestDto(bookId, differentMemberId))
+                .body(new CheckoutCreateDto(bookId, differentMemberId))
                 .when()
                 .post("/api/checkout")
                 .then()

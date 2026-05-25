@@ -12,7 +12,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "members")
 public class Member extends PanacheEntityBase {
-
     @Id
     @GeneratedValue(generator = "UUID")
     @UuidGenerator
@@ -40,7 +39,6 @@ public class Member extends PanacheEntityBase {
 
     public Member() {}
 
-    // Getters and Setters
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 

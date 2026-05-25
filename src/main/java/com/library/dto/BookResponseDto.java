@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
-public record BookDto(
+public record BookResponseDto(
         UUID id,
         @NotBlank(message = "Title is required")
         @Size(max = 255, message = "Title cannot exceed 255 characters")
@@ -29,9 +29,8 @@ public record BookDto(
         @Min(value = 1, message = "Must have at least 1 copy")
         Integer totalCopies
 ) {
-    // Helper to create a DTO from an entity (for responses)
-    public static BookDto fromEntity(com.library.model.Book book) {
-        return new BookDto(
+    public static BookResponseDto fromEntity(com.library.model.Book book) {
+        return new BookResponseDto(
                 book.id,
                 book.getTitle(),
                 book.getAuthor(),

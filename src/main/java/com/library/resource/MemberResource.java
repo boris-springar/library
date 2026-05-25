@@ -1,7 +1,7 @@
 package com.library.resource;
 
 import com.library.dto.MemberCreateDto;
-import com.library.dto.MemberDto;
+import com.library.dto.MemberResponseDto;
 import com.library.service.MemberService;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -20,7 +20,6 @@ import java.util.UUID;
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Members", description = "Member management endpoints")
 public class MemberResource {
-
     @Inject
     MemberService memberService;
 
@@ -30,14 +29,14 @@ public class MemberResource {
     @APIResponse(responseCode = "201", description = "Member created")
     @APIResponse(responseCode = "409", description = "Email already exists")
     public Response createMember(MemberCreateDto dto) {
-        MemberDto result = memberService.createMember(dto);
+        MemberResponseDto result = memberService.createMember(dto);
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
 
     @GET
     @Operation(summary = "List all members")
     @APIResponse(responseCode = "200", description = "List of members")
-    public List<MemberDto> listMembers() {
+    public List<MemberResponseDto> listMembers() {
         return memberService.listMembers();
     }
 

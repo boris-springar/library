@@ -9,8 +9,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "checkouts")
 public class Checkout extends PanacheEntityBase {
-
-
     @Id
     @GeneratedValue(generator = "UUID")
     @org.hibernate.annotations.UuidGenerator
@@ -36,10 +34,8 @@ public class Checkout extends PanacheEntityBase {
     @Column(name = "returned", nullable = false)
     private boolean returned = false;
 
-    // Default constructor
     public Checkout() {}
 
-    // Getters and Setters
     public Book getBook() { return book; }
     public void setBook(Book book) { this.book = book; }
 

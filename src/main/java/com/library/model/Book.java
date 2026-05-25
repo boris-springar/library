@@ -34,10 +34,8 @@ public class Book extends PanacheEntityBase {
     @Column(name = "total_copies")
     private Integer totalCopies;
 
-    // Default constructor required by JPA
     public Book() {}
 
-    // Getters and Setters
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 

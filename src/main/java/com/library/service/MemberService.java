@@ -1,9 +1,8 @@
 package com.library.service;
 
 import com.library.dto.MemberCreateDto;
-import com.library.dto.MemberDto;
+import com.library.dto.MemberResponseDto;
 import com.library.model.Member;
-import com.library.repository.CheckoutRepository;
 import com.library.repository.MemberRepository;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -21,7 +20,7 @@ public class MemberService {
     MemberRepository memberRepository;
 
     @Transactional
-    public MemberDto createMember(MemberCreateDto dto) {
+    public MemberResponseDto createMember(MemberCreateDto dto) {
         if (memberRepository.existsByEmail(dto.email())) {
             throw new WebApplicationException("Email already exists", Response.Status.CONFLICT);
         }
@@ -33,19 +32,17 @@ public class MemberService {
 
         memberRepository.persist(member);
 
-        return MemberDto.fromEntity(member);
+        return MemberResponseDto.fromEntity(member);
     }
 
-    public List<MemberDto> listMembers() {
+    public List<MemberResponseDto> listMembers() {
         List<Member> members = memberRepository.listAll();
-        return members.stream().map(m -> {
-            return MemberDto.fromEntity(m);
-        }).toList();
+        return members.stream().map(MemberResponseDto::fromEntity).toList();
     }
 
-    public MemberDto getMember(UUID id) {
+    public MemberResponseDto getMember(UUID id) {
         Member member = memberRepository.findByIdOptional(id)
                 .orElseThrow(() -> new WebApplicationException("Member not found", Response.Status.NOT_FOUND));
-        return MemberDto.fromEntity(member);
+        return MemberResponseDto.fromEntity(member);
     }
 }

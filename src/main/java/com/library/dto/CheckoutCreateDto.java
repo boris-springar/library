@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record CheckoutRequestDto(
+public record CheckoutCreateDto(
         @NotNull(message = "Book ID is required")
         UUID bookId,
 

@@ -1,7 +1,7 @@
 package com.library.service;
 
 import com.library.dto.BookCreateDto;
-import com.library.dto.BookDto;
+import com.library.dto.BookResponseDto;
 import com.library.model.Book;
 import com.library.repository.BookRepository;
 import com.library.util.Mapper;
@@ -18,7 +18,6 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class BookService {
-
     @Inject
     BookRepository bookRepository;
 
@@ -27,7 +26,7 @@ public class BookService {
      * Throws WebApplicationException if ISBN already exists.
      */
     @Transactional
-    public BookDto createBook(BookCreateDto dto) {
+    public BookResponseDto createBook(BookCreateDto dto) {
         if (bookRepository.existsByIsbn(dto.isbn())) {
             throw new WebApplicationException("ISBN already exists", Response.Status.CONFLICT);
         }
@@ -42,7 +41,7 @@ public class BookService {
      * Lists books with pagination.
      * Validates page and size parameters.
      */
-    public List<BookDto> listBooks(int page, int size) {
+    public List<BookResponseDto> listBooks(int page, int size) {
         if (page < 0 || size <= 0 || size > 100) {
             throw new BadRequestException("Invalid pagination parameters");
         }
@@ -60,7 +59,7 @@ public class BookService {
      * Gets a single book by ID.
      * Throws WebApplicationException if not found.
      */
-    public BookDto getBook(UUID id) {
+    public BookResponseDto getBook(UUID id) {
         Book book = bookRepository.findByIdOptional(id)
                 .orElseThrow(() -> new WebApplicationException("Book not found", Response.Status.NOT_FOUND));
         return Mapper.toDto(book);
@@ -71,7 +70,7 @@ public class BookService {
      * Checks for ISBN conflicts if the ISBN is changed.
      */
     @Transactional
-    public BookDto updateBook(UUID id, BookDto dto) {
+    public BookResponseDto updateBook(UUID id, BookResponseDto dto) {
         Book existing = bookRepository.findByIdOptional(id)
                 .orElseThrow(() -> new WebApplicationException("Book not found", Response.Status.NOT_FOUND));
 
@@ -111,7 +110,7 @@ public class BookService {
     /**
      * Searches books by author and/or title.
      */
-    public List<BookDto> searchBooks(String author, String title) {
+    public List<BookResponseDto> searchBooks(String author, String title) {
         List<Book> books = bookRepository.searchByAuthorAndTitle(author, title);
         return books.stream()
                 .map(Mapper::toDto)

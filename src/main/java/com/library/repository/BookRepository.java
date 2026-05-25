@@ -5,7 +5,6 @@ import com.library.model.Checkout;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -18,60 +17,39 @@ public class BookRepository implements PanacheRepositoryBase<Book, UUID> {
     }
 
     /**
-     * Finds a book by ISBN.
-     */
-    public Optional<Book> findByIsbn(String isbn) {
-        return find("isbn", isbn).firstResultOptional();
-    }
-
-    /**
      * Searches books by author and/or title.
      * Uses dynamic query construction for flexibility.
      */
     public List<Book> searchByAuthorAndTitle(String author, String title) {
-        StringBuilder query = new StringBuilder("select b from Book b where 1=1");
-        List<Object> params = new java.util.ArrayList<>();
-
-        if (author != null && !author.isBlank()) {
-            query.append(" and lower(b.author) like ?");
-            params.add("%" + author.toLowerCase() + "%");
-        }
-
-        if (title != null && !title.isBlank()) {
-            query.append(" and lower(b.title) like ?");
-            params.add("%" + title.toLowerCase() + "%");
-        }
-
-        // Execute the dynamic query
-        if (params.isEmpty()) {
+        if ((author == null || !author.isBlank()) && (title == null || title.isBlank())) {
             return listAll();
         }
 
-        String finalQuery = "select b from Book b";
+        String query = "select b from Book b";
         List<String> conditions = new java.util.ArrayList<>();
-        List<Object> finalParams = new java.util.ArrayList<>();
+        List<Object> params = new java.util.ArrayList<>();
 
         if (author != null && !author.isBlank()) {
             conditions.add("lower(b.author) like ?1");
-            finalParams.add("%" + author.toLowerCase() + "%");
+            params.add("%" + author.toLowerCase() + "%");
         }
         if (title != null && !title.isBlank()) {
             conditions.add("lower(b.title) like ?" + (conditions.size() + 1));
-            finalParams.add("%" + title.toLowerCase() + "%");
+            params.add("%" + title.toLowerCase() + "%");
         }
 
         if (!conditions.isEmpty()) {
-            finalQuery += " where " + String.join(" and ", conditions);
+            query += " where " + String.join(" and ", conditions);
         }
 
-        return list(finalQuery, finalParams.toArray());
+        return list(query, params.toArray());
     }
 
     /**
      * Calculates the number of available copies for a specific book.
      * Available = Total Copies - (Active checkouts for this book)
      */
-    public long countAvailableCopies(UUID bookId) { // Changed from Long to String
+    public long countAvailableCopies(UUID bookId) {
         Book book = findByIdOptional(bookId).orElse(null);
         if (book == null) return 0;
 

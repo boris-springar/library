@@ -1,6 +1,6 @@
 package com.library.resource;
 
-import com.library.dto.CheckoutRequestDto;
+import com.library.dto.CheckoutCreateDto;
 import com.library.dto.CheckoutResponseDto;
 import com.library.service.CheckoutService;
 import jakarta.inject.Inject;
@@ -28,7 +28,7 @@ public class CheckoutResource {
     @APIResponse(responseCode = "201", description = "Book borrowed successfully")
     @APIResponse(responseCode = "404", description = "Book not found")
     @APIResponse(responseCode = "409", description = "Business rule violation")
-    public Response checkoutBook(CheckoutRequestDto dto) {
+    public Response checkoutBook(CheckoutCreateDto dto) {
         try {
             CheckoutResponseDto result = checkoutService.checkoutBook(dto);
             return Response.status(Response.Status.CREATED).entity(result).build();

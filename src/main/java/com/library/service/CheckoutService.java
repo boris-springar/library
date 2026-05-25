@@ -1,6 +1,6 @@
 package com.library.service;
 
-import com.library.dto.CheckoutRequestDto;
+import com.library.dto.CheckoutCreateDto;
 import com.library.dto.CheckoutResponseDto;
 import com.library.model.Book;
 import com.library.model.Checkout;
@@ -20,13 +20,10 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class CheckoutService {
-
     @Inject
     CheckoutRepository checkoutRepository;
-
     @Inject
     BookRepository bookRepository;
-
     @Inject
     MemberRepository memberRepository;
 
@@ -35,7 +32,7 @@ public class CheckoutService {
      * Throws WebApplicationException for business rule violations.
      */
     @Transactional
-    public CheckoutResponseDto checkoutBook(CheckoutRequestDto dto) {
+    public CheckoutResponseDto checkoutBook(CheckoutCreateDto dto) {
         Book book = bookRepository.findByIdOptional(dto.bookId())
                 .orElseThrow(() -> new WebApplicationException("Book not found", Response.Status.NOT_FOUND));
 
@@ -50,7 +47,7 @@ public class CheckoutService {
 
         // At least one book must be available at all times.
         long availableCopies = bookRepository.countAvailableCopies(dto.bookId());
-        if (availableCopies <= 1) {
+        if (availableCopies <= 0) {
             throw new WebApplicationException("No copies available for checkout", Response.Status.CONFLICT);
         }
 
@@ -58,7 +55,7 @@ public class CheckoutService {
         checkout.setBook(book);
         checkout.setMember(member);
         checkout.setCheckoutDate(LocalDate.now());
-        checkout.setDueDate(LocalDate.now().plusDays(14)); // Hardcoded 14 days
+        checkout.setDueDate(LocalDate.now().plusDays(14));
         checkout.setReturned(false);
 
         checkoutRepository.persist(checkout);

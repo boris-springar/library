@@ -1,7 +1,7 @@
 package com.library.resource;
 
 import com.library.dto.BookCreateDto;
-import com.library.dto.BookDto;
+import com.library.dto.BookResponseDto;
 import com.library.service.BookService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -29,14 +29,14 @@ public class BookResource {
     @APIResponse(responseCode = "201", description = "Book created successfully")
     @APIResponse(responseCode = "409", description = "ISBN already exists")
     public Response createBook(@Valid BookCreateDto dto) {
-        BookDto result = bookService.createBook(dto);
+        BookResponseDto result = bookService.createBook(dto);
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
 
     @GET
     @Operation(summary = "List all books with pagination")
     @APIResponse(responseCode = "200", description = "Books retrieved successfully")
-    public List<BookDto> listBooks(
+    public List<BookResponseDto> listBooks(
             @DefaultValue("0") @QueryParam("page") int page,
             @DefaultValue("10") @QueryParam("size") int size) {
         return bookService.listBooks(page, size);
@@ -57,7 +57,7 @@ public class BookResource {
     @APIResponse(responseCode = "200", description = "Book updated successfully")
     @APIResponse(responseCode = "404", description = "Book not found")
     @APIResponse(responseCode = "409", description = "ISBN conflict")
-    public Response updateBook(@PathParam("id") UUID id, @Valid BookDto dto) {
+    public Response updateBook(@PathParam("id") UUID id, @Valid BookResponseDto dto) {
         return Response.ok(bookService.updateBook(id, dto)).build();
     }
 
@@ -76,7 +76,7 @@ public class BookResource {
     @Path("/search")
     @Operation(summary = "Search books by author and/or title")
     @APIResponse(responseCode = "200", description = "Search results")
-    public List<BookDto> searchBooks(
+    public List<BookResponseDto> searchBooks(
             @QueryParam("author") String author,
             @QueryParam("title") String title) {
         return bookService.searchBooks(author, title);
